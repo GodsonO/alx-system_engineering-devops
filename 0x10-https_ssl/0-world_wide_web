@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #   domain_information "$1" "web-01"
 #   domain_information "$1" "web-02"
 
