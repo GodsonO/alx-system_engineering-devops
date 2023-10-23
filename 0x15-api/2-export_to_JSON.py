@@ -2,37 +2,24 @@
 """export data in the JSON format.
 """
 
-from json import dump
+import json
 import requests
-from sys import argv
+import sys
 
 
 def main():
-    user = make_request('users', ('id', argv[1]))[0]
-    tasks = make_request('todos', ('userId', argv[1]))
+    user_id = sys.argv[1]
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/{}".format(user_id)).json()
+    username = user.get("username")
+    todos = requests.get(url + "todos", params={"userId": user_id}).json()
 
-    user_id = user['id']
-    export = {user_id: []}
-    for task in tasks:
-        export[user_id].append({'task': task['title'],
-                                'completed': task['completed'],
-                                'username': user['username']})
-
-    filename = argv[1] + '.json'
-    with open(filename, mode='w') as f:
-        dump(export, f)
-
-
-def make_request(resource, param=None):
-        url = 'https://jsonplaceholder.typicode.com/'
-        url += resource
-        if param:
-            url += ('?' + param[0] + '=' + param[1])
-
-        r = requests.get(url)
-
-        r = r.json()
-        return r
+    with open("{}.json".format(user_id), "w") as jsonfile:
+        json.dump({user_id: [{
+                "task": t.get("title"),
+                "completed": t.get("completed"),
+                "username": username
+            } for t in todos]}, jsonfile)
 
 
 if __name__ == "__main__":
